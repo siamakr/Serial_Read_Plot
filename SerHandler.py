@@ -1,13 +1,22 @@
+# This class handles to main objectives: connect and read from serial port 
+# and write the recorded data to a CSV file that is properly named and parsed 
+# the class waits for a start_keyword to begin recording and stops when end_keyword
+# is identified 
+# It then checks the directly for a given set of csv files, and creates a new file
+# with correct numbering iteration
+# It then saves the data to the csv file correctly parsed.
+
 import os
 import serial
 import csv
 
 class SerHandler:
-    def __init__(self, port, baud_rate, start_keyword, end_keyword):
+    def __init__(self, port, baud_rate, start_keyword, end_keyword, csv_basename):
         self.port = port
         self.baud_rate = baud_rate
         self.start_keyword = start_keyword
         self.end_keyword = end_keyword
+        self.csv_basename = csv_basename
         self.serial = None
         self.serial_is_connected = False
         self.csv_file = None
@@ -30,7 +39,7 @@ class SerHandler:
     # It then returns the filename of the next csv to be created to store new data 
     def get_next_csv_filename(self):
         # create a list of files that have the following conditions
-        csv_files = [f for f in os.listdir() if f.startswith("XY_SR_") and f.endswith(".csv")]      # amazing that you can do this in 1 line
+        csv_files = [f for f in os.listdir() if f.startswith(self.csv_basename) and f.endswith(".csv")]      # amazing that you can do this in 1 line
         next_file_num = len(csv_files) + 1
         self.csv_filename = f"XY_SR_{next_file_num:03}.csv"         # add leading zeros
         return self.csv_filename
@@ -84,7 +93,7 @@ class SerHandler:
 #     port_name = '/dev/tty.usbmodem141859801'  
 #     baud_rate = 115200  
 
-#     sh = SerialHandler(port_name, baud_rate, "testing begin...", "testing done...")
+#     sh = SerialHandler(port_name, baud_rate, "testing begin...", "testing done...", "XY_SR_")
 #     sh.connect_serial()
 #     sh.start_recording()
 #     if sh.is_recording:
